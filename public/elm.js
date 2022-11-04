@@ -604,7 +604,7 @@ ${variant}`;
   var VERSION = "1.1.0";
   var TARGET_NAME = "Block Builder";
   var INITIAL_ELM_COMPILED_TIMESTAMP = Number(
-    "1667512630936"
+    "1667572639856"
   );
   var ORIGINAL_COMPILATION_MODE = "standard";
   var ORIGINAL_BROWSER_UI_POSITION = "BottomLeft";
@@ -13117,7 +13117,7 @@ var $author$project$Main$createDragHandleSphere = function (center) {
 	return A2(
 		$ianmackenzie$elm_geometry$Sphere3d$atPoint,
 		center,
-		$ianmackenzie$elm_units$Length$meters(0.25));
+		$ianmackenzie$elm_units$Length$meters(0.125));
 };
 var $ianmackenzie$elm_geometry$Axis3d$direction = function (_v0) {
 	var axis = _v0.a;
@@ -13620,13 +13620,13 @@ var $author$project$Main$partToEnt = function (parts) {
 					F2(
 						function (index, _v2) {
 							var sphere = _v2.a;
-							var dragPlane = _v2.b;
-							var dropPlane = _v2.c;
+							var dragAxis = _v2.b;
+							var dragPlane = _v2.c;
 							return _Utils_Tuple2(
 								index,
 								{
+									dragAxis: dragAxis,
 									dragPlane: dragPlane,
-									dropPlane: dropPlane,
 									entity: A2(
 										$ianmackenzie$elm_3d_scene$Scene3d$sphere,
 										$ianmackenzie$elm_3d_scene$Scene3d$Material$color($avh4$elm_color$Color$white),
@@ -13644,10 +13644,7 @@ var $author$project$Main$partToEnt = function (parts) {
 									$ianmackenzie$elm_geometry$Axis3d$direction(xAxis),
 									width,
 									center)),
-							A2(
-								$ianmackenzie$elm_geometry$Plane3d$through,
-								center,
-								$ianmackenzie$elm_geometry$Axis3d$direction(yAxis)),
+							xAxis,
 							A2(
 								$ianmackenzie$elm_geometry$Plane3d$through,
 								center,
@@ -13660,10 +13657,7 @@ var $author$project$Main$partToEnt = function (parts) {
 										$ianmackenzie$elm_geometry$Axis3d$reverse(xAxis)),
 									width,
 									center)),
-							A2(
-								$ianmackenzie$elm_geometry$Plane3d$through,
-								center,
-								$ianmackenzie$elm_geometry$Axis3d$direction(yAxis)),
+							$ianmackenzie$elm_geometry$Axis3d$reverse(xAxis),
 							A2(
 								$ianmackenzie$elm_geometry$Plane3d$through,
 								center,
@@ -13675,10 +13669,7 @@ var $author$project$Main$partToEnt = function (parts) {
 									$ianmackenzie$elm_geometry$Axis3d$direction(yAxis),
 									length,
 									center)),
-							A2(
-								$ianmackenzie$elm_geometry$Plane3d$through,
-								center,
-								$ianmackenzie$elm_geometry$Axis3d$direction(xAxis)),
+							yAxis,
 							A2(
 								$ianmackenzie$elm_geometry$Plane3d$through,
 								center,
@@ -13691,10 +13682,7 @@ var $author$project$Main$partToEnt = function (parts) {
 										$ianmackenzie$elm_geometry$Axis3d$reverse(yAxis)),
 									length,
 									center)),
-							A2(
-								$ianmackenzie$elm_geometry$Plane3d$through,
-								center,
-								$ianmackenzie$elm_geometry$Axis3d$direction(xAxis)),
+							$ianmackenzie$elm_geometry$Axis3d$reverse(yAxis),
 							A2(
 								$ianmackenzie$elm_geometry$Plane3d$through,
 								center,
@@ -13706,14 +13694,11 @@ var $author$project$Main$partToEnt = function (parts) {
 									$ianmackenzie$elm_geometry$Axis3d$direction(zAxis),
 									height,
 									center)),
+							zAxis,
 							A2(
 								$ianmackenzie$elm_geometry$Plane3d$through,
 								center,
-								$ianmackenzie$elm_geometry$Axis3d$direction(xAxis)),
-							A2(
-								$ianmackenzie$elm_geometry$Plane3d$through,
-								center,
-								$ianmackenzie$elm_geometry$Axis3d$direction(yAxis))),
+								$ianmackenzie$elm_geometry$Axis3d$direction(xAxis))),
 							_Utils_Tuple3(
 							$author$project$Main$createDragHandleSphere(
 								A3(
@@ -13722,14 +13707,11 @@ var $author$project$Main$partToEnt = function (parts) {
 										$ianmackenzie$elm_geometry$Axis3d$reverse(zAxis)),
 									height,
 									center)),
+							$ianmackenzie$elm_geometry$Axis3d$reverse(zAxis),
 							A2(
 								$ianmackenzie$elm_geometry$Plane3d$through,
 								center,
-								$ianmackenzie$elm_geometry$Axis3d$direction(xAxis)),
-							A2(
-								$ianmackenzie$elm_geometry$Plane3d$through,
-								center,
-								$ianmackenzie$elm_geometry$Axis3d$direction(yAxis)))
+								$ianmackenzie$elm_geometry$Axis3d$direction(xAxis)))
 						])));
 		}(),
 		entity: A2($ianmackenzie$elm_3d_scene$Scene3d$blockWithShadow, material, shape),
@@ -14325,17 +14307,6 @@ var $ianmackenzie$elm_geometry$Point3d$distanceFrom = F2(
 			return $ianmackenzie$elm_units$Quantity$Quantity(scaledLength * largestComponent);
 		}
 	});
-var $ianmackenzie$elm_geometry$Geometry$Types$LineSegment3d = function (a) {
-	return {$: 'LineSegment3d', a: a};
-};
-var $ianmackenzie$elm_geometry$LineSegment3d$fromEndpoints = function (givenEndpoints) {
-	return $ianmackenzie$elm_geometry$Geometry$Types$LineSegment3d(givenEndpoints);
-};
-var $ianmackenzie$elm_geometry$LineSegment3d$from = F2(
-	function (givenStartPoint, givenEndPoint) {
-		return $ianmackenzie$elm_geometry$LineSegment3d$fromEndpoints(
-			_Utils_Tuple2(givenStartPoint, givenEndPoint));
-	});
 var $elm$core$List$head = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -14379,72 +14350,6 @@ var $ianmackenzie$elm_geometry$Axis3d$intersectionWithPlane = F2(
 			var axialDistance = A2($ianmackenzie$elm_units$Quantity$multiplyBy, (-1) / normalComponent, normalDistance);
 			return $elm$core$Maybe$Just(
 				A3($ianmackenzie$elm_geometry$Point3d$translateIn, axisDirection, axialDistance, axisOrigin));
-		}
-	});
-var $ianmackenzie$elm_geometry$LineSegment3d$endpoints = function (_v0) {
-	var lineSegmentEndpoints = _v0.a;
-	return lineSegmentEndpoints;
-};
-var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
-	function (_v0, _v1) {
-		var y = _v0.a;
-		var x = _v1.a;
-		return _Utils_cmp(x, y) > 0;
-	});
-var $ianmackenzie$elm_geometry$Point3d$interpolateFrom = F3(
-	function (_v0, _v1, t) {
-		var p1 = _v0.a;
-		var p2 = _v1.a;
-		return (t <= 0.5) ? $ianmackenzie$elm_geometry$Geometry$Types$Point3d(
-			{x: p1.x + (t * (p2.x - p1.x)), y: p1.y + (t * (p2.y - p1.y)), z: p1.z + (t * (p2.z - p1.z))}) : $ianmackenzie$elm_geometry$Geometry$Types$Point3d(
-			{x: p2.x + ((1 - t) * (p1.x - p2.x)), y: p2.y + ((1 - t) * (p1.y - p2.y)), z: p2.z + ((1 - t) * (p1.z - p2.z))});
-	});
-var $ianmackenzie$elm_units$Quantity$lessThan = F2(
-	function (_v0, _v1) {
-		var y = _v0.a;
-		var x = _v1.a;
-		return _Utils_cmp(x, y) < 0;
-	});
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $ianmackenzie$elm_units$Quantity$times = F2(
-	function (_v0, _v1) {
-		var y = _v0.a;
-		var x = _v1.a;
-		return $ianmackenzie$elm_units$Quantity$Quantity(x * y);
-	});
-var $ianmackenzie$elm_geometry$LineSegment3d$intersectionWithPlane = F2(
-	function (plane, lineSegment) {
-		var _v0 = $ianmackenzie$elm_geometry$LineSegment3d$endpoints(lineSegment);
-		var p1 = _v0.a;
-		var p2 = _v0.b;
-		var d1 = A2($ianmackenzie$elm_geometry$Point3d$signedDistanceFrom, plane, p1);
-		var d2 = A2($ianmackenzie$elm_geometry$Point3d$signedDistanceFrom, plane, p2);
-		var product = A2($ianmackenzie$elm_units$Quantity$times, d2, d1);
-		if (A2($ianmackenzie$elm_units$Quantity$lessThan, $ianmackenzie$elm_units$Quantity$zero, product)) {
-			var t = A2(
-				$ianmackenzie$elm_units$Quantity$ratio,
-				d1,
-				A2($ianmackenzie$elm_units$Quantity$minus, d2, d1));
-			return $elm$core$Maybe$Just(
-				A3($ianmackenzie$elm_geometry$Point3d$interpolateFrom, p1, p2, t));
-		} else {
-			if (A2($ianmackenzie$elm_units$Quantity$greaterThan, $ianmackenzie$elm_units$Quantity$zero, product)) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				if (!_Utils_eq(d1, $ianmackenzie$elm_units$Quantity$zero)) {
-					return $elm$core$Maybe$Just(p2);
-				} else {
-					if (!_Utils_eq(d2, $ianmackenzie$elm_units$Quantity$zero)) {
-						return $elm$core$Maybe$Just(p1);
-					} else {
-						if (_Utils_eq(p1, p2)) {
-							return $elm$core$Maybe$Just(p1);
-						} else {
-							return $elm$core$Maybe$Nothing;
-						}
-					}
-				}
-			}
 		}
 	});
 var $ianmackenzie$elm_geometry$Point3d$along = F2(
@@ -14495,6 +14400,24 @@ var $ianmackenzie$elm_geometry$Axis3d$intersectionWithSphere = F2(
 						axis,
 						$ianmackenzie$elm_units$Quantity$Quantity(d2))));
 		}
+	});
+var $ianmackenzie$elm_units$Quantity$lessThan = F2(
+	function (_v0, _v1) {
+		var y = _v0.a;
+		var x = _v1.a;
+		return _Utils_cmp(x, y) < 0;
+	});
+var $ianmackenzie$elm_geometry$Point3d$projectOntoAxis = F2(
+	function (_v0, _v1) {
+		var axis = _v0.a;
+		var p = _v1.a;
+		var _v2 = axis.originPoint;
+		var p0 = _v2.a;
+		var _v3 = axis.direction;
+		var d = _v3.a;
+		var distance = (((p.x - p0.x) * d.x) + ((p.y - p0.y) * d.y)) + ((p.z - p0.z) * d.z);
+		return $ianmackenzie$elm_geometry$Geometry$Types$Point3d(
+			{x: p0.x + (distance * d.x), y: p0.y + (distance * d.y), z: p0.z + (distance * d.z)});
 	});
 var $ianmackenzie$elm_units$Quantity$at = F2(
 	function (_v0, _v1) {
@@ -14753,8 +14676,8 @@ var $author$project$Main$setDragHandlePosition = F2(
 			center,
 			$ianmackenzie$elm_geometry$Sphere3d$radius(handle.sphere));
 		return {
+			dragAxis: handle.dragAxis,
 			dragPlane: handle.dragPlane,
-			dropPlane: handle.dropPlane,
 			entity: A2(
 				$ianmackenzie$elm_3d_scene$Scene3d$sphere,
 				$ianmackenzie$elm_3d_scene$Scene3d$Material$color(
@@ -14777,8 +14700,8 @@ var $author$project$Main$setDragHandlePosition = F2(
 var $author$project$Main$setDragHandleState = F2(
 	function (state, handle) {
 		return {
+			dragAxis: handle.dragAxis,
 			dragPlane: handle.dragPlane,
-			dropPlane: handle.dropPlane,
 			entity: A2(
 				$ianmackenzie$elm_3d_scene$Scene3d$sphere,
 				$ianmackenzie$elm_3d_scene$Scene3d$Material$color(
@@ -15304,39 +15227,22 @@ var $author$project$Main$update = F2(
 							return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 						} else {
 							var pnt = _v15.a;
-							var segment = A2(
-								$ianmackenzie$elm_geometry$LineSegment3d$from,
-								A3(
-									$ianmackenzie$elm_geometry$Point3d$translateIn,
-									$ianmackenzie$elm_geometry$Direction3d$positiveZ,
-									$ianmackenzie$elm_units$Length$meters(500),
-									pnt),
-								A3(
-									$ianmackenzie$elm_geometry$Point3d$translateIn,
-									$ianmackenzie$elm_geometry$Direction3d$negativeZ,
-									$ianmackenzie$elm_units$Length$meters(500),
-									pnt));
-							var intersectionPnt = A2($ianmackenzie$elm_geometry$LineSegment3d$intersectionWithPlane, dragHandle.dropPlane, segment);
-							if (intersectionPnt.$ === 'Nothing') {
-								return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-							} else {
-								var intersection = intersectionPnt.a;
-								return _Utils_Tuple2(
-									_Utils_update(
-										model,
-										{
-											testBlockBot: _Utils_update(
-												testBlockBot,
-												{
-													dragHandles: A3(
-														$elm$core$Dict$insert,
-														draggingId,
-														A2($author$project$Main$setDragHandlePosition, intersection, dragHandle),
-														testBlockBot.dragHandles)
-												})
-										}),
-									$elm$core$Platform$Cmd$none);
-							}
+							var intersectionPnt = A2($ianmackenzie$elm_geometry$Point3d$projectOntoAxis, dragHandle.dragAxis, pnt);
+							return _Utils_Tuple2(
+								_Utils_update(
+									model,
+									{
+										testBlockBot: _Utils_update(
+											testBlockBot,
+											{
+												dragHandles: A3(
+													$elm$core$Dict$insert,
+													draggingId,
+													A2($author$project$Main$setDragHandlePosition, intersectionPnt, dragHandle),
+													testBlockBot.dragHandles)
+											})
+									}),
+								$elm$core$Platform$Cmd$none);
 						}
 					}
 				}
@@ -15344,17 +15250,17 @@ var $author$project$Main$update = F2(
 				var hovering = $elm$core$List$head(
 					A2(
 						$elm$core$List$filter,
-						function (_v19) {
-							var dragHandle = _v19.b;
+						function (_v18) {
+							var dragHandle = _v18.b;
 							return _Utils_eq(dragHandle.state, $author$project$Main$Hover);
 						},
 						$elm$core$Dict$toList(model.testBlockBot.dragHandles)));
 				if (hovering.$ === 'Nothing') {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				} else {
-					var _v18 = hovering.a;
-					var id = _v18.a;
-					var dragHandle = _v18.b;
+					var _v17 = hovering.a;
+					var id = _v17.a;
+					var dragHandle = _v17.b;
 					var testBlockBot = model.testBlockBot;
 					return _Utils_Tuple2(
 						_Utils_update(
@@ -15374,11 +15280,11 @@ var $author$project$Main$update = F2(
 						$elm$core$Platform$Cmd$none);
 				}
 			default:
-				var _v20 = model.dragging;
-				if (_v20.$ === 'Nothing') {
+				var _v19 = model.dragging;
+				if (_v19.$ === 'Nothing') {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				} else {
-					var draggingId = _v20.a;
+					var draggingId = _v19.a;
 					var testBlockBot = model.testBlockBot;
 					return _Utils_Tuple2(
 						_Utils_update(
@@ -15429,6 +15335,17 @@ var $author$project$Main$decodeMouseMove = A3(
 	A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
 	A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float));
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$core$Dict$filter = F2(
+	function (isGood, dict) {
+		return A3(
+			$elm$core$Dict$foldl,
+			F3(
+				function (k, v, d) {
+					return A2(isGood, k, v) ? A3($elm$core$Dict$insert, k, v, d) : d;
+				}),
+			$elm$core$Dict$empty,
+			dict);
+	});
 var $ianmackenzie$elm_units$Pixels$int = function (numPixels) {
 	return $ianmackenzie$elm_units$Quantity$Quantity(numPixels);
 };
@@ -15459,6 +15376,26 @@ var $elm$html$Html$Events$onMouseUp = function (msg) {
 		$elm$html$Html$Events$on,
 		'mouseup',
 		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$core$Dict$sizeHelp = F2(
+	function (n, dict) {
+		sizeHelp:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return n;
+			} else {
+				var left = dict.d;
+				var right = dict.e;
+				var $temp$n = A2($elm$core$Dict$sizeHelp, n + 1, right),
+					$temp$dict = left;
+				n = $temp$n;
+				dict = $temp$dict;
+				continue sizeHelp;
+			}
+		}
+	});
+var $elm$core$Dict$size = function (dict) {
+	return A2($elm$core$Dict$sizeHelp, 0, dict);
 };
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
@@ -16561,6 +16498,12 @@ var $ianmackenzie$elm_3d_scene$Scene3d$Multisampling = {$: 'Multisampling'};
 var $ianmackenzie$elm_3d_scene$Scene3d$multisampling = $ianmackenzie$elm_3d_scene$Scene3d$Multisampling;
 var $ianmackenzie$elm_3d_scene$Scene3d$NoToneMapping = {$: 'NoToneMapping'};
 var $ianmackenzie$elm_3d_scene$Scene3d$noToneMapping = $ianmackenzie$elm_3d_scene$Scene3d$NoToneMapping;
+var $ianmackenzie$elm_units$Quantity$greaterThan = F2(
+	function (_v0, _v1) {
+		var y = _v0.a;
+		var x = _v1.a;
+		return _Utils_cmp(x, y) > 0;
+	});
 var $ianmackenzie$elm_units$Illuminance$inLux = function (_v0) {
 	var numLux = _v0.a;
 	return numLux;
@@ -16776,6 +16719,24 @@ var $author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						A2($elm$html$Html$Attributes$style, 'display', 'inline-block'),
+						A2(
+						$elm$html$Html$Attributes$style,
+						'cursor',
+						function () {
+							var _v0 = model.dragging;
+							if (_v0.$ === 'Just') {
+								return 'grabbing';
+							} else {
+								return ($elm$core$Dict$size(
+									A2(
+										$elm$core$Dict$filter,
+										F2(
+											function (_v1, dragHandle) {
+												return _Utils_eq(dragHandle.state, $author$project$Main$Hover);
+											}),
+										model.testBlockBot.dragHandles)) > 0) ? 'grab' : 'inherit';
+							}
+						}()),
 						A2($elm$html$Html$Events$on, 'mousemove', $author$project$Main$decodeMouseMove),
 						$elm$html$Html$Events$onMouseDown($author$project$Main$MouseDown),
 						$elm$html$Html$Events$onMouseUp($author$project$Main$MouseUp)
@@ -16798,7 +16759,7 @@ var $author$project$Main$view = function (model) {
 										A3(
 										$elm$core$Dict$foldl,
 										F3(
-											function (_v0, dragHandle, result) {
+											function (_v2, dragHandle, result) {
 												return A2($elm$core$List$cons, dragHandle.entity, result);
 											}),
 										_List_Nil,

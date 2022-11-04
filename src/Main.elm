@@ -14,7 +14,6 @@ import Html.Attributes
 import Html.Events
 import Json.Decode
 import Length
-import LineSegment3d exposing (LineSegment3d)
 import Pixels exposing (Pixels)
 import Plane3d exposing (Plane3d)
 import Point2d exposing (Point2d)
@@ -24,7 +23,6 @@ import Rectangle2d exposing (Rectangle2d)
 import Scene3d
 import Scene3d.Material
 import Sphere3d exposing (Sphere3d)
-import Vector3d exposing (Vector3d)
 import Viewpoint3d
 
 
@@ -59,7 +57,7 @@ type alias DragHandle =
     , sphere : Sphere3d Length.Meters GameCoordinates
     , state : DragHandleState
     , dragPlane : Plane3d Length.Meters GameCoordinates
-    , dropPlane : Plane3d Length.Meters GameCoordinates
+    , dragAxis : Axis3d Length.Meters GameCoordinates
     }
 
 
@@ -147,50 +145,50 @@ partToEnt parts =
                 [ ( center
                         |> Point3d.translateIn (Axis3d.direction xAxis) width
                         |> createDragHandleSphere
-                  , Plane3d.through center (Axis3d.direction yAxis)
+                  , xAxis
                   , Plane3d.through center (Axis3d.direction zAxis)
                   )
                 , ( center
                         |> Point3d.translateIn (xAxis |> Axis3d.reverse |> Axis3d.direction) width
                         |> createDragHandleSphere
-                  , Plane3d.through center (Axis3d.direction yAxis)
+                  , xAxis |> Axis3d.reverse
                   , Plane3d.through center (Axis3d.direction zAxis)
                   )
+                --   
                 , ( center
                         |> Point3d.translateIn (Axis3d.direction yAxis) length
                         |> createDragHandleSphere
-                  , Plane3d.through center (Axis3d.direction xAxis)
+                  , yAxis
                   , Plane3d.through center (Axis3d.direction zAxis)
                   )
                 , ( center
                         |> Point3d.translateIn (yAxis |> Axis3d.reverse |> Axis3d.direction) length
                         |> createDragHandleSphere
-                  , Plane3d.through center (Axis3d.direction xAxis)
+                  , yAxis |> Axis3d.reverse
                   , Plane3d.through center (Axis3d.direction zAxis)
                   )
+                --   
                 , ( center
                         |> Point3d.translateIn (Axis3d.direction zAxis) height
                         |> createDragHandleSphere
-                    -- TODO: This won't work
+                  , zAxis
                   , Plane3d.through center (Axis3d.direction xAxis)
-                  , Plane3d.through center (Axis3d.direction yAxis)
                   )
                 , ( center
                         |> Point3d.translateIn (zAxis |> Axis3d.reverse |> Axis3d.direction) height
                         |> createDragHandleSphere
-                    -- TODO: This won't work
+                  , zAxis |> Axis3d.reverse
                   , Plane3d.through center (Axis3d.direction xAxis)
-                  , Plane3d.through center (Axis3d.direction yAxis)
                   )
                 ]
                     |> List.indexedMap
-                        (\index ( sphere, dragPlane, dropPlane ) ->
+                        (\index ( sphere, dragAxis, dragPlane ) ->
                             ( index
                             , { sphere = sphere
                               , entity = Scene3d.sphere (Scene3d.Material.color Color.white) sphere
                               , state = Default
                               , dragPlane = dragPlane
-                              , dropPlane = dropPlane
+                              , dragAxis = dragAxis
                               }
                             )
                         )
@@ -199,7 +197,7 @@ partToEnt parts =
 
 
 createDragHandleSphere center =
-    Sphere3d.atPoint center (Length.meters 0.25)
+    Sphere3d.atPoint center (Length.meters 0.125)
 
 
 subscriptions : Model -> Sub Msg
@@ -370,32 +368,23 @@ update msg model =
 
                                 Just pnt ->
                                     let
-                                        segment =
-                                            LineSegment3d.from
-                                                (pnt |> Point3d.translateIn Direction3d.positiveZ (Length.meters 500))
-                                                (pnt |> Point3d.translateIn Direction3d.negativeZ (Length.meters 500))
-
+                                        intersectionPnt : Point3d Length.Meters GameCoordinates
                                         intersectionPnt =
-                                            LineSegment3d.intersectionWithPlane
-                                                dragHandle.dropPlane
-                                                segment
+                                            Point3d.projectOntoAxis
+                                                dragHandle.dragAxis
+                                                pnt
                                     in
-                                    case intersectionPnt of
-                                        Nothing ->
-                                            ( model, Cmd.none )
-
-                                        Just intersection ->
-                                            ( { model
-                                                | testBlockBot =
-                                                    { testBlockBot
-                                                        | dragHandles =
-                                                            Dict.insert draggingId
-                                                                (setDragHandlePosition intersection dragHandle)
-                                                                testBlockBot.dragHandles
-                                                    }
-                                              }
-                                            , Cmd.none
-                                            )
+                                    ( { model
+                                        | testBlockBot =
+                                            { testBlockBot
+                                                | dragHandles =
+                                                    Dict.insert draggingId
+                                                        (setDragHandlePosition intersectionPnt dragHandle)
+                                                        testBlockBot.dragHandles
+                                            }
+                                        }
+                                    , Cmd.none
+                                    )
 
         MouseDown ->
             let
@@ -479,7 +468,7 @@ setDragHandleState state handle =
             )
             handle.sphere
     , dragPlane = handle.dragPlane
-    , dropPlane = handle.dropPlane
+    , dragAxis = handle.dragAxis
     }
 
 
@@ -508,7 +497,7 @@ setDragHandlePosition center handle =
             )
             newSphere
     , dragPlane = handle.dragPlane
-    , dropPlane = handle.dropPlane
+    , dragAxis = handle.dragAxis
     }
 
 
@@ -518,6 +507,14 @@ view model =
     , body =
         [ Html.div
             [ Html.Attributes.style "display" "inline-block"
+            , Html.Attributes.style "cursor" <|
+                case model.dragging of
+                    Just _ -> "grabbing"
+                    Nothing ->
+                        if (Dict.filter (\_ dragHandle -> dragHandle.state == Hover) model.testBlockBot.dragHandles |> Dict.size) > 0 then
+                            "grab"
+                        else
+                            "inherit"
             , Html.Events.on "mousemove" decodeMouseMove
             , Html.Events.onMouseDown MouseDown
             , Html.Events.onMouseUp MouseUp
