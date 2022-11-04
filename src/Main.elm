@@ -196,8 +196,9 @@ partToEnt parts =
             }
 
 
+createDragHandleSphere : Point3d Length.Meters GameCoordinates -> Sphere3d Length.Meters GameCoordinates
 createDragHandleSphere center =
-    Sphere3d.atPoint center (Length.meters 0.125)
+    Sphere3d.atPoint center (Length.meters 0.25)
 
 
 subscriptions : Model -> Sub Msg
@@ -282,74 +283,9 @@ update msg model =
             )
 
         MouseMove cursorPoint ->
-            let
-                testBlockBot : Ent
-                testBlockBot =
-                    model.testBlockBot
-            in
             case model.dragging of
                 Nothing ->
-                    let
-                        ray : Axis3d Length.Meters GameCoordinates
-                        ray =
-                            Camera3d.ray model.camera screenRectangle2d cursorPoint
-
-                        rayStart : Point3d Length.Meters GameCoordinates
-                        rayStart =
-                            Axis3d.originPoint ray
-                    in
-                    ( { model
-                        | testBlockBot =
-                            { testBlockBot
-                                | dragHandles =
-                                    Dict.foldl
-                                        (\id dragHandle ( result, maybeNearest ) ->
-                                            case ( Axis3d.intersectionWithSphere dragHandle.sphere ray, dragHandle.state ) of
-                                                ( Nothing, Default ) ->
-                                                    ( Dict.insert id dragHandle result, maybeNearest )
-
-                                                ( Nothing, _ ) ->
-                                                    ( Dict.insert id (setDragHandleState Default dragHandle) result, maybeNearest )
-
-                                                ( Just ( intersectionPoint, _ ), _ ) ->
-                                                    let
-                                                        distance : Quantity Float Length.Meters
-                                                        distance =
-                                                            intersectionPoint
-                                                                |> Point3d.distanceFrom rayStart
-                                                    in
-                                                    case maybeNearest of
-                                                        Nothing ->
-                                                            ( result
-                                                            , Just ( id, setDragHandleState Hover dragHandle, distance )
-                                                            )
-
-                                                        Just ( nearestId, nearest, nearestDist ) ->
-                                                            if distance |> Quantity.lessThan nearestDist then
-                                                                ( Dict.insert nearestId (setDragHandleState Default nearest) result
-                                                                , Just ( id, setDragHandleState Hover dragHandle, distance )
-                                                                )
-
-                                                            else
-                                                                ( Dict.insert id (setDragHandleState Default dragHandle) result
-                                                                , maybeNearest
-                                                                )
-                                        )
-                                        ( Dict.empty, Nothing )
-                                        testBlockBot.dragHandles
-                                        |> (\( defaults, maybeHover ) ->
-                                                case maybeHover of
-                                                    Nothing ->
-                                                        defaults
-
-                                                    Just ( id, toHover, _ ) ->
-                                                        Dict.insert id toHover defaults
-                                           )
-                            }
-                        , cursorPoint = cursorPoint
-                      }
-                    , Cmd.none
-                    )
+                    updateMouseMove cursorPoint model
 
                 Just draggingId ->
                     case Dict.get draggingId model.testBlockBot.dragHandles of
@@ -357,34 +293,7 @@ update msg model =
                             ( model, Cmd.none )
 
                         Just dragHandle ->
-                            let
-                                newRay : Axis3d Length.Meters GameCoordinates
-                                newRay =
-                                    Camera3d.ray model.camera screenRectangle2d cursorPoint
-                            in
-                            case Axis3d.intersectionWithPlane dragHandle.dragPlane newRay of
-                                Nothing ->
-                                    ( model, Cmd.none )
-
-                                Just pnt ->
-                                    let
-                                        intersectionPnt : Point3d Length.Meters GameCoordinates
-                                        intersectionPnt =
-                                            Point3d.projectOntoAxis
-                                                dragHandle.dragAxis
-                                                pnt
-                                    in
-                                    ( { model
-                                        | testBlockBot =
-                                            { testBlockBot
-                                                | dragHandles =
-                                                    Dict.insert draggingId
-                                                        (setDragHandlePosition intersectionPnt dragHandle)
-                                                        testBlockBot.dragHandles
-                                            }
-                                        }
-                                    , Cmd.none
-                                    )
+                            updateMouseDrag  draggingId dragHandle cursorPoint model
 
         MouseDown ->
             let
@@ -447,6 +356,142 @@ update msg model =
                       }
                     , Cmd.none
                     )
+
+
+updateMouseMove : Point2d Pixels ScreenCoordinates -> Model -> ( Model, Cmd Msg )
+updateMouseMove cursorPoint model =
+    let
+        testBlockBot : Ent
+        testBlockBot =
+            model.testBlockBot
+
+        ray : Axis3d Length.Meters GameCoordinates
+        ray =
+            Camera3d.ray model.camera screenRectangle2d cursorPoint
+
+        rayStart : Point3d Length.Meters GameCoordinates
+        rayStart =
+            Axis3d.originPoint ray
+    in
+    ( { model
+        | testBlockBot =
+            { testBlockBot
+                | dragHandles =
+                    Dict.foldl
+                        (\id dragHandle ( result, maybeNearest ) ->
+                            case ( Axis3d.intersectionWithSphere dragHandle.sphere ray, dragHandle.state ) of
+                                ( Nothing, Default ) ->
+                                    ( Dict.insert id dragHandle result, maybeNearest )
+
+                                ( Nothing, _ ) ->
+                                    ( Dict.insert id (setDragHandleState Default dragHandle) result, maybeNearest )
+
+                                ( Just ( intersectionPoint, _ ), _ ) ->
+                                    let
+                                        distance : Quantity Float Length.Meters
+                                        distance =
+                                            intersectionPoint
+                                                |> Point3d.distanceFrom rayStart
+                                    in
+                                    case maybeNearest of
+                                        Nothing ->
+                                            ( result
+                                            , Just ( id, setDragHandleState Hover dragHandle, distance )
+                                            )
+
+                                        Just ( nearestId, nearest, nearestDist ) ->
+                                            if distance |> Quantity.lessThan nearestDist then
+                                                ( Dict.insert nearestId (setDragHandleState Default nearest) result
+                                                , Just ( id, setDragHandleState Hover dragHandle, distance )
+                                                )
+
+                                            else
+                                                ( Dict.insert id (setDragHandleState Default dragHandle) result
+                                                , maybeNearest
+                                                )
+                        )
+                        ( Dict.empty, Nothing )
+                        testBlockBot.dragHandles
+                        |> (\( defaults, maybeHover ) ->
+                                case maybeHover of
+                                    Nothing ->
+                                        defaults
+
+                                    Just ( id, toHover, _ ) ->
+                                        Dict.insert id toHover defaults
+                            )
+            }
+        , cursorPoint = cursorPoint
+        }
+    , Cmd.none
+    )
+
+
+updateMouseDrag : Int -> DragHandle -> Point2d Pixels ScreenCoordinates -> Model -> ( Model, Cmd Msg )
+updateMouseDrag draggingId dragHandle cursorPoint model =
+    let
+        testBlockBot : Ent
+        testBlockBot =
+            model.testBlockBot
+
+        newRay : Axis3d Length.Meters GameCoordinates
+        newRay =
+            Camera3d.ray model.camera screenRectangle2d cursorPoint
+    in
+    case Axis3d.intersectionWithPlane dragHandle.dragPlane newRay of
+        Nothing ->
+            ( model, Cmd.none )
+
+        Just pnt ->
+            let
+                intersectionPnt : Point3d Length.Meters GameCoordinates
+                intersectionPnt =
+                    Point3d.projectOntoAxis
+                        dragHandle.dragAxis
+                        pnt
+
+                newDist : Quantity Float Length.Meters
+                newDist =
+                    Point3d.signedDistanceAlong
+                        dragHandle.dragAxis
+                        intersectionPnt
+
+                oldDist : Quantity Float Length.Meters
+                oldDist =
+                    Point3d.signedDistanceAlong
+                        dragHandle.dragAxis
+                        (Sphere3d.centerPoint dragHandle.sphere)
+
+                distanceMoved : Float
+                distanceMoved =
+                    newDist
+                        |> Quantity.minus oldDist
+                        |> Length.inMeters
+
+                ( parts, entity ) =
+                    case testBlockBot.parts of
+                        EntBlock material shape ->
+                            let
+                                newShape : Block3d.Block3d Length.Meters GameCoordinates
+                                newShape =
+                                    Block3d.scaleAbout (Point3d.origin) (1 + distanceMoved) shape
+                            in
+                            ( EntBlock material newShape
+                            , Scene3d.blockWithShadow material newShape
+                            )
+            in
+            ( { model
+                | testBlockBot =
+                    { dragHandles =
+                        Dict.insert draggingId
+                            (setDragHandlePosition intersectionPnt dragHandle)
+                            testBlockBot.dragHandles
+                    , parts = parts
+                    , entity = entity
+                    }
+                }
+            , Cmd.none
+            )
 
 
 setDragHandleState : DragHandleState -> DragHandle -> DragHandle
